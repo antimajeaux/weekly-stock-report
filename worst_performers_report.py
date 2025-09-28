@@ -220,14 +220,11 @@ def build_markdown_report(us_df, eu_df, analyses):
     return "\n".join(md)
 
 def send_telegram_message(text, token=TELEGRAM_BOT_TOKEN, chat_id=TELEGRAM_CHAT_ID):
-    # Telegram Bot API sendMessage (Markdown)
+    import requests
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    data = {
-        "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "Markdown"
-    }
+    data = {"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
     r = requests.post(url, json=data, timeout=30)
+    print(f"Telegram API status: {r.status_code}, response: {r.text}")  # << add this
     r.raise_for_status()
     return r.json()
 
