@@ -18,6 +18,8 @@ import yfinance as yf
 import openai
 from datetime import datetime, timedelta
 import pandas as pd
+import requests
+from io import StringIO
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
@@ -56,7 +58,13 @@ MONDAY, FRIDAY = get_last_week_dates()
 def fetch_wikipedia_table(url, table_index=0):
     """Return first (or specified) table from a Wikipedia page as DataFrame."""
     logging.info(f"Fetching constituents from {url}")
-    tables = pd.read_html(url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      "(KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+    }
+    resp = requests.get(url, headers=headers)
+    resp.raise_for_status()  # ensure we notice HTTP errors
+    tables = pd.read_html(StringIO(resp.text))
     if table_index >= len(tables):
         raise ValueError("table_index out of range for page tables")
     return tables[table_index]
