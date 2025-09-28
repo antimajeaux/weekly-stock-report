@@ -82,7 +82,7 @@ def get_sp500_tickers():
             return df[col].astype(str).str.replace(".", "-", regex=False).tolist()
     raise RuntimeError("Could not find ticker column in S&P 500 table")
 
-def get_stoxx600_tickers_investing():
+def get_stoxx600_tickers():
     """Get STOXX Europe 600 tickers using investpy (Investing.com data)."""
     try:
         logging.info("Fetching STOXX Europe 600 tickers via investpy...")
