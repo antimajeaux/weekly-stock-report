@@ -20,6 +20,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import requests
 from io import StringIO
+import investpy
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
@@ -81,21 +82,17 @@ def get_sp500_tickers():
             return df[col].astype(str).str.replace(".", "-", regex=False).tolist()
     raise RuntimeError("Could not find ticker column in S&P 500 table")
 
-def get_stoxx600_tickers():
-    # Use STOXX Europe 600 constituents Wikipedia page (constituents table)
-    url = "https://en.wikipedia.org/wiki/STOXX_Europe_600"
-    # The page usually contains a link or a table; find a table that contains 'Ticker' or 'Company'
-    tables = pd.read_html(url)
-    # Try to locate the table with tickers
-    for t in tables:
-        cols = [c.lower() for c in t.columns.astype(str)]
-        if any("ticker" in c or "isin" in c or "symbol" in c for c in cols) or any("company" in c for c in cols):
-            # try to find ticker-like column
-            for c in t.columns:
-                if "ticker" in str(c).lower() or "symbol" in str(c).lower() or "isin" in str(c).lower():
-                    return t[c].astype(str).str.replace(".", "-", regex=False).tolist()
-    # As fallback, try index pages for constituents — but for simplicity raise error so user can review
-    raise RuntimeError("Could not find STOXX Europe 600 constituents table automatically. You can supply your own list.")
+def get_stoxx600_tickers_investing():
+    """Get STOXX Europe 600 tickers using investpy (Investing.com data)."""
+    try:
+        logging.info("Fetching STOXX Europe 600 tickers via investpy...")
+        df = investpy.indices.get_index_stocks(index='STOXX Europe 600', country='europe')
+        tickers = df['symbol'].astype(str).str.replace(".", "-", regex=False).tolist()
+        logging.info(f"Loaded {len(tickers)} European tickers via investpy.")
+        return tickers
+    except Exception as e:
+        logging.error(f"Failed to get European tickers via investpy: {e}")
+        raise
 
 def get_percent_change_and_marketcap(ticker, days_back=DAYS_BACK+1):
     """
