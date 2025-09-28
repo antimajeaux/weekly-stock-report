@@ -59,8 +59,10 @@ def fetch_wikipedia_table(url, table_index=0):
     """Return first (or specified) table from a Wikipedia page as DataFrame."""
     logging.info(f"Fetching constituents from {url}")
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                      "(KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
     }
     resp = requests.get(url, headers=headers)
     resp.raise_for_status()  # ensure we notice HTTP errors
